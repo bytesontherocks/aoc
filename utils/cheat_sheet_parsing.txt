@@ -1,0 +1,38 @@
+
+#include <fstream>
+#include <string>
+
+std::ifstream in_stream;
+stream.open(file_name);
+std::getline(in_stream, line);
+
+
+std::ofstream out_stream;
+
+do
+{
+    out_stream.open(file_name, std::ios::app);
+} while (!out_stream);
+
+// This function parses the id of the id. The expected format of the line is "id: id , other_field: X"
+auto getId = [](const std::string& line) {
+    auto start_pos_id = line.find(" ", 0);
+
+    if (start_pos_id == std::string::npos)
+    {
+        return std::string{""};
+    }
+
+    start_pos_id++; // advance position to the first character
+
+    auto end_pos_id = line.find(" ", start_pos_id);
+
+    if (start_pos_id == std::string::npos)
+    {
+        return std::string{""};
+    }
+
+    auto id_length = (end_pos_id - start_pos_id);
+
+    return line.substr(start_pos_id, id_length);
+};
