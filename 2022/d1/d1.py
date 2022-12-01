@@ -2,14 +2,12 @@
 def getElfCalListSorted(input_file_name):
     f = open(input_file_name, "r")
     lines = f.readlines()
-    num_elfs = 0
     cal_elfs= [0]
     num_cal = 0
     for line in lines[0:len(lines)-1]:
         if line != "\n":
             num_cal += int(line)
         else:            
-            num_elfs += 1
             cal_elfs.append(num_cal)
             num_cal = 0
     cal_elfs.sort()
