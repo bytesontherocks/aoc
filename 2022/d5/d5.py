@@ -33,9 +33,7 @@ def parseStacks(input_file_name):
 
 def calculateScoreEx1(input_file_name):    
    
-    qs = parseStacks(input_file_name)
-   
-    
+    qs = parseStacks(input_file_name)    
 
     f = open(input_file_name, "r")
     lines = f.readlines()
@@ -66,14 +64,43 @@ def calculateScoreEx1(input_file_name):
 
     return message
 
-def calculateScoreEx2(input_file_name):
+def calculateScoreEx2(input_file_name):    
+   
+    qs = parseStacks(input_file_name)    
+
     f = open(input_file_name, "r")
     lines = f.readlines()
 
-    score = 0
-  
+    ln_ix = 0 
+    while lines[ln_ix] != "\n":
+        ln_ix+=1
+    
+    ln_ix+=1
+    moves = 0
+    q_from = 0
+    q_to = 0
 
-    return score
+    for line_ix in range(ln_ix,len(lines)):
+        move_data = re.findall(r'\d+', lines[line_ix])
+        moves = int(move_data[0])
+        q_from = int(move_data[1])-1
+        q_to =int( move_data[2])-1
+        print(f"moves:{moves}, from: {q_from}, to: {q_to}")
+
+        # not optimal
+        q_t = queue.LifoQueue()
+        for time in range(0,moves):
+            q_t.put(qs[q_from].get())
+
+        for time in range(0,moves):     
+            qs[q_to].put(q_t.get())
+
+    message=""
+    for q in qs:
+        message += q.get()
+    
+
+    return message
 
         
 if __name__ == "__main__":
