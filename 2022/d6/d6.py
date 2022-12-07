@@ -22,7 +22,6 @@ def calculateScoreEx2(input_file_name):
     lines = f.readlines()  
     return getMarkerPosition(lines[0], 14)
 
-        
 if __name__ == "__main__":
     res1 = calculateScoreEx1("input.txt")
     res2 = calculateScoreEx2("input.txt")
