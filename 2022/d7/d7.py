@@ -1,5 +1,5 @@
-
-def getDirSize(tree):
+def getNextLine(lines, ix):
+    return lines[ix].split(), ix + 1
     return 0
 
 def getDirectorySize(tree, dir_id):
@@ -12,12 +12,6 @@ def getDirectorySize(tree, dir_id):
             dir_sz += d
     
     return dir_sz
-
-
-# def getDirectoryInfo(tree, dir):
-#     for t in tree:
-
-#     return tree[dir]
     
 def getDirectoriesSize(tree):
     dir = tree['/']
