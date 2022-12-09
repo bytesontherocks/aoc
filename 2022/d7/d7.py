@@ -29,50 +29,49 @@ def calculateScoreEx1(input_file_name):
     with open(input_file_name, "r") as f:
         lines = f.read().splitlines()
         ln_ix=0 
-        while ln_ix < len(lines):     
-            ln, ln_ix = getNextLine(lines, ln_ix)
-            root = []      
+        root_sz = [] 
+        dir = []
+        while ln_ix < len(lines):
+            ln = lines[ln_ix].split()   
+                    
 
-            last_line = False
+            if ln[1] == "cd":
+                acc = 0
+                cwd = ln[2]          
+                if ln[2] != "..":
+                    ln_ix += 2 #ignore ls
+                    ln = lines[ln_ix].split()
+                    while ln[0] != "$":
+                        ln = lines[ln_ix].split()
+                        if ln[0].isdigit():
+                            acc += int(ln[0])
 
-            while ln[1] != "cd" or ln[2]!= "..":
-                entry = {}
-                dir = []
-                cwd = ""
-                if ln[1] == "cd":    
-                    cwd = ln[2]          
-                    ln, ln_ix = getNextLine(lines, ln_ix)   
-                    ln, ln_ix = getNextLine(lines, ln_ix)                
-                    last_line = False
-                    acc_size = 0
-                    while ln[0] != "$" and last_line == False:                    
-                        if ln[0] == "dir":
-                            nested_dir = {}
-                            nested_dir[ln[1]] = []
-                            dir.append(nested_dir)
-                        elif ln[0].isdigit():              
-                            acc_size += int(ln[0])
-
-                        if ln_ix < len(lines):
-                            ln, ln_ix = getNextLine(lines, ln_ix)
-                        else:
-                            last_line = True
-
-                    dir.append(acc_size)
-
-                if ln_ix < len(lines):
-                    ln, ln_ix = getNextLine(lines, ln_ix)
-                else:
-                    last_line = True
-
-                entry[cwd] = dir
-                print(f"entry: {entry}")
-
-            #root.append(entry)
+                        ln_ix+=1 
+                        if ln_ix >= len(lines):
+                            break                   
+                           
+                    entry = {}      
+                    entry[cwd] = acc
+                    dir.append(entry)
+                    
+                else:        
+                    root_sz.append(dir)                        
+                    dir = []
 
 
-            #print(f"dir: {dir}")
-   
+            # ln_ix+=1 
+            # if ln_ix >= len(lines):
+            #     break
+           
+           
+        print(dir)    
+            
+            
+                 
+
+
+
+
 
     return 0
 
