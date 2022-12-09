@@ -1,78 +1,63 @@
-def getNextLine(lines, ix):
-    return lines[ix].split(), ix + 1
+class Dir:
+    nested_dirs = []
+    parent = None
+    size = 0
+    total_size = 0 #account nested
+    def __init__(self, id, parent):
+        self.id=id
+        self.parent=parent
 
-def getDirectorySize(tree, dir_id):
-    dir=tree[dir_id]
-    dir_sz=dir[-1]
-    for d in range(0,len(dir)-1):  
-        dir_sz += getDirectorySize(tree, dir[d])
-    
-    return dir_sz
-
-def updateDirPath(ln, dir):
-    if ln[1] == "cd" and ln[2].isalpha():
-        dir.append(ln[2])
-    elif  ln[1] == "cd" and ln[2]=="..":
-        dir.pop() # cd ..
-    print(dir)
-    return dir
-
-    root_dir = dir['/']
-    root_dir = [{'a' : [{'e': [584]}, f, g, h]}, b, c, {'d': [j,dl,de, k]}]
-
-    # dir a -> C
-    # 14848514 b.txt
-    # 8504156 c.dat
+    def getId(self):
+        return self.id
+    def getParent(self):
+        return self.parent
+    def getSize(self):
+        sz = self.size
+        for d in self.nested_dirs:
+            sz+=d.getSize()
+        return sz
+    def accSize(self, size):
+        self.size+=size
+    def addDir(self, dir):
+        self.nested_dirs.append(dir)
+    def getDir(self, id):
+        for d in self.nested_dirs:
+            if d.getId() == id:
+                return d
+            else:
+                return None
+    def getIdAndSize(self):
+        return self.id,self.getSize()
 
 
 def calculateScoreEx1(input_file_name):
     with open(input_file_name, "r") as f:
         lines = f.read().splitlines()
         ln_ix=0 
-        root_sz = [] 
-        dir = []
+        current_dir = Dir('/', None)#create root
+        parent=current_dir
+        root = parent
         while ln_ix < len(lines):
-            ln = lines[ln_ix].split()   
-                    
+            ln = lines[ln_ix].split()      
 
-            if ln[1] == "cd":
-                acc = 0
-                cwd = ln[2]          
-                if ln[2] != "..":
-                    ln_ix += 2 #ignore ls
-                    ln = lines[ln_ix].split()
-                    while ln[0] != "$":
-                        ln = lines[ln_ix].split()
-                        if ln[0].isdigit():
-                            acc += int(ln[0])
+            if ln[1] == "cd":     
+                if ln[2].isalpha() and ln[2]!='/':
+                    current_dir = Dir(ln[2],current_dir)  
+                    parent.addDir(current_dir)
+                    parent=current_dir
+                if ln[2] == "..":
+                    current_dir=current_dir.getParent()
+                    parent=current_dir.getParent()
+                    if current_dir.getId() == '/':
+                        parent=current_dir
 
-                        ln_ix+=1 
-                        if ln_ix >= len(lines):
-                            break                   
-                           
-                    entry = {}      
-                    entry[cwd] = acc
-                    dir.append(entry)
-                    
-                else:        
-                    root_sz.append(dir)                        
-                    dir = []
-
-
-            # ln_ix+=1 
-            # if ln_ix >= len(lines):
-            #     break
-           
-           
-        print(dir)    
-            
-            
-                 
-
-
-
-
-
+            if ln[0].isdigit():
+                current_dir.accSize(int(ln[0]))
+            ln_ix+=1 
+            if ln_ix >= len(lines):
+                break
+        print(root.getIdAndSize())
+        
     return 0
 
 def calculateScoreEx2(input_file_name):    
