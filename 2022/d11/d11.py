@@ -22,17 +22,30 @@ class Monkey:
     
     def calculateNew(self, old) -> int:
         if self.worry_new[0].isalpha():
-            return old * old
+            return int(old * old)
         if self.worry_new[1] == '+':
             return int(self.worry_new[0]) + old
         if self.worry_new[1] == '*':
             return int(self.worry_new[0]) * old
     
+    def addWorryItem(self, item):
+        self.worry_items.append(item)
+    
     def inspect(self, monkeys):
         for it in self.worry_items:
-            new=self.calculateNew(it)
-            calc=int(new/self.test)
+            new=self.calculateNew(int(it))
+            boredom=int(new/3)
+            if boredom%self.test==0:
+                monkeys[self.test_true].addWorryItem(boredom)
+            else:
+                monkeys[self.test_false].addWorryItem(boredom)
+
             self.inspection+=1
+
+        self.worry_items.clear()#items processed
+
+    def getInspectedItems(self) -> int:
+        return self.inspection
 
 
 
@@ -69,30 +82,27 @@ def calculateScoreEx1(input_file_name):
                 test_f=re.findall(r'\d+',lines[ln_ix+5])
                 #print(f"test:{test[0]}, ttrue{test_t}, tfalse{test_f}")
                 
-                m=Monkey(alist,op,test,test_t,test_f)  
+                m=Monkey(alist,op,int(test[0]),int(test_t[0]),int(test_f[0]))  
                 monkeys.append(m)
             
             ln_ix+=1
         
-        for m in monkeys:
-            print(f"monkey ix {m}")
-            m.printList()
-            
-            
-        #print(monkeys)
-
-
-        # its = getMonkeyItems()
-        # worry_level = getWorryLevel()
-
-        # worry_level/=3
-
-        # applyTest()
-        # decideMonkey()
-
-
+        num_rounds=20
+        for rounds in range(0,20):
+            for m in monkeys:
+                m.inspect(monkeys)
+            rounds+=1
         
-    return 0
+        m=0
+        inspected=[]
+        for m in range(0,len(monkeys)):
+            print(f"monkey {m} : {monkeys[m].getInspectedItems()}")
+            inspected.append(monkeys[m].getInspectedItems())
+        inspected.sort()
+                
+            
+        
+    return inspected[-1]*inspected[-2]
 
 
 def calculateScoreEx2(input_file_name):    
@@ -103,6 +113,6 @@ def calculateScoreEx2(input_file_name):
     return 0
 
 if __name__ == "__main__":
-    res1 = calculateScoreEx1("input_sample.txt")
+    res1 = calculateScoreEx1("input.txt")
     res2 = calculateScoreEx2("input.txt")
     print(f"ex1: {res1}, ex2: {res2}")
