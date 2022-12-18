@@ -45,8 +45,6 @@ def getDirs(input_file_name):
                 dirs[current_dir].accSize(int(ln[0]))
 
             ln_ix+=1 
-            if ln_ix >= len(lines):
-                break
     
     return dirs
 
