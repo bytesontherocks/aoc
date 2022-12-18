@@ -83,14 +83,12 @@ def calculateScoreEx2(input_file_name):
                     qd+=1
                     if d>=el:
                         break
-                tree_q=ql*qr*qu*qr  
+                tree_q=ql*qr*qu*qd  
                 best_tree.append(tree_q) 
 
-        best_tree.sort()
-
-    return best_tree[-1]
+    return max(best_tree)
 
 if __name__ == "__main__":
     res1 = calculateScoreEx1("input.txt")
-    res2 = calculateScoreEx2("input_sample.txt")
+    res2 = calculateScoreEx2("input.txt")
     print(f"ex1: {res1}, ex2: {res2}")
