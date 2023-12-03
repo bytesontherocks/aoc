@@ -24,7 +24,7 @@ def calculate_ex2(input_file_name):
     lines = f.readlines()
     sum = 0
     for line in lines:
-        dig = re.findall("(?=([0-9]|one|two|three|four|five|six|seven|eight|nine))", line)       
+        dig = re.findall("(?=(\d|one|two|three|four|five|six|seven|eight|nine))", line)       
         dig_1_10 = numbers_alpha[dig[0]]
         dig_1 = numbers_alpha[dig[-1]]
         sum += int(dig_1_10)*10
