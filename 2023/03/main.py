@@ -17,8 +17,6 @@ def is_included(c_ix, digit_len, lines, line_ix):
 
     pattern = re.compile("[-$&+%_,'\":;~=/\*?@#]+") 
     if pattern.search(l_0) != None or pattern.search(l_1) != None or pattern.search(l_2) != None:
-
-        print("Special character found")
         return True
 
     return False
@@ -32,10 +30,12 @@ def calculate_ex(input_file_name):
     while line_ix < len(lines):
         current_line = lines[line_ix]
         nums = re.findall(r'\d+', current_line)
+        d_ix_acc = 0
+
         for n in nums:
-            d_ix = lines[line_ix].find(n)
+            d_ix = current_line.find(n, d_ix_acc)
+            d_ix_acc = d_ix + len(n)# avoids detecting numbers contained in other '7' in '72'
             if is_included(d_ix, len(n), lines, line_ix) == True:
-                print(n)
                 sum += int(n)
         line_ix += 1
     return sum, 0
