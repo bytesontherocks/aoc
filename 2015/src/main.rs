@@ -100,7 +100,85 @@ mod ex2 {
         }
     }
 }
+mod ex3 {
+    use std::collections::HashMap;
+    use std::{error::Error, fs};
+
+    fn a(filename: &str) -> Result<usize, Box<dyn Error>> {
+        // Read the entire file into a string
+        let contents = fs::read_to_string(filename)?;
+        let mut x: i32 = 0;
+        let mut y: i32 = 0;
+
+        let mut count: HashMap<(i32, i32), i32> = HashMap::new();
+        count.insert((x, y), 1);
+
+        for c in contents.chars() {
+            match c {
+                '^' => x += 1,
+                'v' => x -= 1,
+                '>' => y += 1,
+                '<' => y -= 1,
+                _ => continue, // ignore other characters
+            }
+            *count.entry((x, y)).or_insert(1) += 1;
+        }
+
+        Ok(count.len())
+    }
+    fn b(filename: &str) -> Result<usize, Box<dyn Error>> {
+        // Read the entire file into a string
+        let contents = fs::read_to_string(filename)?;
+        let mut x: i32 = 0;
+        let mut y: i32 = 0;
+        let mut x2: i32 = 0;
+        let mut y2: i32 = 0;
+        let mut moves: i32 = 1;
+        let mut count: HashMap<(i32, i32), i32> = HashMap::new();
+        count.insert((x, y), 1);
+
+        for c in contents.chars() {
+            if moves & 0x01 == 1 {
+                match c {
+                    '^' => x += 1,
+                    'v' => x -= 1,
+                    '>' => y += 1,
+                    '<' => y -= 1,
+                    _ => continue, // ignore other characters
+                }
+                *count.entry((x, y)).or_insert(1) += 1;
+            } else {
+                match c {
+                    '^' => x2 += 1,
+                    'v' => x2 -= 1,
+                    '>' => y2 += 1,
+                    '<' => y2 -= 1,
+                    _ => continue, // ignore other characters
+                }
+                *count.entry((x2, y2)).or_insert(1) += 1;
+            }
+
+            moves += 1;
+        }
+
+        Ok(count.len())
+    }
+
+    pub fn show_results() {
+        match a("./src/ex3.txt") {
+            Ok(v) => println!("a result: {v}"),
+            Err(e) => eprintln!("a error: {e}"),
+        }
+
+        match b("./src/ex3.txt") {
+            Ok(v) => println!("b result: {v}"),
+            Err(e) => eprintln!("b error: {e}"),
+        }
+    }
+}
+
 fn main() {
     ex1::show_results();
     ex2::show_results();
+    ex3::show_results();
 }
