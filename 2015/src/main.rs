@@ -138,25 +138,27 @@ mod ex3 {
         count.insert((x, y), 1);
 
         for c in contents.chars() {
-            if moves & 0x01 == 1 {
-                match c {
-                    '^' => x += 1,
-                    'v' => x -= 1,
-                    '>' => y += 1,
-                    '<' => y -= 1,
-                    _ => continue, // ignore other characters
-                }
-                *count.entry((x, y)).or_insert(1) += 1;
+            // Choose which Santa moves
+            let (xpos, ypos) = if moves & 1 == 1 {
+                (&mut x, &mut y)
             } else {
-                match c {
-                    '^' => x2 += 1,
-                    'v' => x2 -= 1,
-                    '>' => y2 += 1,
-                    '<' => y2 -= 1,
-                    _ => continue, // ignore other characters
-                }
-                *count.entry((x2, y2)).or_insert(1) += 1;
+                (&mut x2, &mut y2)
+            };
+
+            // Apply move
+            match c {
+                '^' => *xpos += 1,
+                'v' => *xpos -= 1,
+                '>' => *ypos += 1,
+                '<' => *ypos -= 1,
+                _ => {
+                    moves += 1;
+                    continue;
+                } // skip invalid chars but still alternate
             }
+
+            // Count visit
+            *count.entry((*xpos, *ypos)).or_insert(1) += 1;
 
             moves += 1;
         }
