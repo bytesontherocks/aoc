@@ -209,9 +209,113 @@ mod ex4 {
     }
 }
 
+mod ex5 {
+
+    use std::error::Error;
+    use std::fs::File;
+    use std::io::{BufRead, BufReader};
+
+    fn a(filename: &str) -> Result<u32, Box<dyn Error>> {
+        let file = File::open(filename)?;
+        let reader = BufReader::new(file);
+
+        let forbidden = ["ab", "cd", "pq", "xy"];
+        //let must: &[char] = b"aeiou"; // ['a', 'e', 'i', 'o', 'u'];
+        let must: &[char] = &['a', 'e', 'i', 'o', 'u'];
+        let mut nice: u32 = 0;
+
+        for line_res in reader.lines() {
+            let line = line_res?;
+            let mut next_line = false;
+            for f in forbidden {
+                if line.find(f).is_some() {
+                    next_line = true;
+                    break;
+                }
+            }
+
+            if next_line {
+                continue;
+            }
+
+            let chars: Vec<char> = line.chars().collect();
+            for i in 0..chars.len() - 1 {
+                if chars[i] == chars[i + 1] {
+                    next_line = true;
+                    break;
+                }
+            }
+
+            if !next_line {
+                continue;
+            }
+
+            let mut vowels = 0;
+            for &f in must {
+                vowels += line.chars().filter(|&c| c == f).count();
+                if vowels >= 3 {
+                    nice += 1;
+                    break;
+                }
+            }
+        }
+
+        Ok(nice)
+    }
+
+    use std::collections::HashSet;
+
+    fn b(filename: &str) -> Result<u32, Box<dyn Error>> {
+        let file = File::open(filename)?;
+        let reader = BufReader::new(file);
+        let mut nice: u32 = 0;
+        let mut meets_criteria = false;
+
+        for line_res in reader.lines() {
+            let line = line_res?;
+            let chars: Vec<char> = line.chars().collect();
+            let mut seen = HashSet::new();
+            for i in 0..chars.len() - 1 {
+                let pair: String = chars[i..=i + 1].iter().collect(); // slice of 2 chars
+
+                if !seen.insert(pair) {
+                    meets_criteria = true;
+                    break;
+                }
+            }
+
+            if !meets_criteria {
+                continue;
+            }
+
+            let chars: Vec<char> = line.chars().collect();
+            for i in 0..chars.len() - 2 {
+                if chars[i] == chars[i + 2] {
+                    nice += 1;
+                    break;
+                }
+            }
+        }
+
+        Ok(nice)
+    }
+
+    pub fn show_results() {
+        match a("./src/ex5.txt") {
+            Ok(a) => println!("ex5a result: {a}"),
+            Err(e) => eprintln!("ex5a error: {e}"),
+        }
+        match b("./src/ex5.txt") {
+            Ok(a) => println!("ex5b result: {a}"),
+            Err(e) => eprintln!("ex5b error: {e}"),
+        }
+    }
+}
+
 fn main() {
-    ex1::show_results();
-    ex2::show_results();
-    ex3::show_results();
-    ex4::show_results();
+    // ex1::show_results();
+    // ex2::show_results();
+    // ex3::show_results();
+    // ex4::show_results();
+    ex5::show_results();
 }
