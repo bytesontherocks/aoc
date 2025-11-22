@@ -179,8 +179,39 @@ mod ex3 {
     }
 }
 
+mod ex4 {
+    use md5;
+    use std::error::Error;
+
+    fn a(prefix: &str, target: &str) -> Result<u32, Box<dyn Error>> {
+        for num_cand in 0u32..=u32::MAX {
+            let candidate = format!("{}{}", prefix, num_cand.to_string());
+
+            let digest = format!("{:x}", md5::compute(candidate.as_bytes()));
+            if digest.starts_with(&target) {
+                println!("{}", digest);
+                return Ok(num_cand);
+            }
+        }
+
+        Err("no candidate met the requiments".into())
+    }
+
+    pub fn show_results() {
+        match a("iwrupvqb", "00000") {
+            Ok(a) => println!("ex4a result: {a}"),
+            Err(e) => eprintln!("ex4a error: {e}"),
+        }
+        match a("iwrupvqb", "000000") {
+            Ok(a) => println!("ex4b result: {a}"),
+            Err(e) => eprintln!("ex4b error: {e}"),
+        }
+    }
+}
+
 fn main() {
     ex1::show_results();
     ex2::show_results();
     ex3::show_results();
+    ex4::show_results();
 }
