@@ -263,6 +263,37 @@ mod ex5 {
         Ok(nice)
     }
 
+    fn has_repeating_substring(s: &str) -> bool {
+        let n = s.len();
+
+        // guarantee minimum string size
+        if n < 4 {
+            return false;
+        }
+
+        // The loop goes up to 'n - 2' to ensure we can always grab s[i] and s[i+1].
+        for i in 0..n.saturating_sub(1) {
+            // create new candidate
+            let target_pair = match s.get(i..i + 2) {
+                Some(pair) => pair,
+                None => continue, // we shouldn't be hit
+            };
+
+            // slice string where to find
+            let rest_of_string = match s.get(i + 2..) {
+                Some(rest) => rest,
+                None => break, // nothing where to look at
+            };
+
+            if rest_of_string.contains(target_pair) {
+                return true; // repeat found
+            }
+        }
+
+        //No repeat found
+        false
+    }
+
     use std::collections::HashSet;
 
     fn b(filename: &str) -> Result<u32, Box<dyn Error>> {
@@ -273,18 +304,9 @@ mod ex5 {
 
         for line_res in reader.lines() {
             let line = line_res?;
-            let chars: Vec<char> = line.chars().collect();
-            let mut seen = HashSet::new();
-            for i in 0..chars.len() - 1 {
-                let pair: String = chars[i..=i + 1].iter().collect(); // slice of 2 chars
 
-                if !seen.insert(pair) {
-                    meets_criteria = true;
-                    break;
-                }
-            }
-
-            if !meets_criteria {
+            // has substrings of 2chars repeated
+            if !has_repeating_substring(&line) {
                 continue;
             }
 
