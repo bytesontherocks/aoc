@@ -14,7 +14,7 @@ mod ex1 {
         let mut global_counter: i64 = 50;
         let mut result_a: u64 = 0;
         let mut result_b: u64 = 0;
-        let cpy_gc = 0;
+
         for line in reader.lines() {
             let line = line?; // each line is a result_a<String>
             let matches: Vec<&str> = re.find_iter(&line)
