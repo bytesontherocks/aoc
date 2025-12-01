@@ -334,6 +334,18 @@ mod ex5 {
     }
 }
 
+mod ex6 {
+    use bitvec::prelude::*;
+    use std::error::Error;
+
+    fn a(filename: &str) -> Result<u32, Box<dyn Error>> {
+        let rows = 1000;
+        let cols = 1000;
+
+        Ok(0)
+    }
+}
+
 fn main() {
     // ex1::show_results();
     // ex2::show_results();
