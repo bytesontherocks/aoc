@@ -1,5 +1,0 @@
-{
-  "editor.formatOnSave": true,
-  "rust-analyzer.rustfmt.enableRangeFormatting": true,
-  "rust-analyzer.rustfmt.overrideCommand": null
-}

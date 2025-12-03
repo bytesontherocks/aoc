@@ -91,43 +91,43 @@ mod ex3 {
     use std::fs::File;
     use std::io::{BufRead, BufReader};
 
-    fn ex3(filename: &str) -> Result<(u64, u64), Box<dyn Error>> {
-        let mut a: u64 = 0;
+    fn ex3(filename: &str, num_digits: usize) -> Result<u64, Box<dyn Error>> {
+        let mut res: u64 = 0;
         let file = File::open(filename)?;
         let reader = BufReader::new(file);
-
-        let mut b: [char; 2];
 
         for line in reader.lines() {
             let chars: Vec<char> = line?.chars().collect(); // each line is a result_a<String>
 
-            let mut max_c: char = '0';
-            let mut max_c_ix = 0;
-            for ix in 0..chars.len() - 1 {
-                let c = chars[ix];
-                if c > max_c {
-                    max_c = c;
-                    max_c_ix = ix + 1;
-                }
-            }
+            let mut b = vec!['0'; num_digits];
 
-            let mut second_max_c: char = '0';
-            for ix in max_c_ix..chars.len() {
-                let c = chars[ix];
-                if c > second_max_c {
-                    second_max_c = c;
+            let mut max_c_ix = 0;
+
+            for dig_ix in (0..=(num_digits - 1)).rev() {
+                for ix in max_c_ix..chars.len() - dig_ix {
+                    let c = chars[ix];
+                    if c > b[dig_ix] {
+                        b[dig_ix] = c;
+                        max_c_ix = ix + 1;
+                    }
                 }
             }
-            println!("{} - {}", max_c, second_max_c);
-            a += (max_c.to_digit(10).unwrap() * 10 + second_max_c.to_digit(10).unwrap()) as u64;
+            for ix in 0..num_digits {
+                res += b[ix].to_digit(10).unwrap() as u64 * 10u64.pow(ix as u32);
+            }
         }
 
-        Ok((a, 0))
+        Ok(res)
     }
 
     pub fn show_result_as() {
-        match ex3("./src/ex3_input.txt") {
-            Ok((a, b)) => println!("Ex2025_3 result a: {} and b: {}", a, b),
+        match ex3("./src/ex3_input.txt", 2) {
+            Ok(a) => println!("Ex2025_3 result a: {}", a),
+            Err(e) => eprintln!("Ex2025_3 error: {e}"),
+        }
+
+        match ex3("./src/ex3_input.txt", 12) {
+            Ok(b) => println!("Ex2025_3 result b: {}", b),
             Err(e) => eprintln!("Ex2025_3 error: {e}"),
         }
     }
