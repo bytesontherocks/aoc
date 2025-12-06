@@ -133,10 +133,101 @@ mod ex3 {
     }
 }
 
+mod ex4 {
+
+    use std::error::Error;
+    use std::fs::File;
+    use std::io::{BufRead, BufReader};
+
+    fn ex4(filename: &str) -> Result<(u64, u64), Box<dyn Error>> {
+        let file = File::open(filename)?;
+
+        let mut result_a: u64 = 0;
+        let mut result_b: u64 = 0;
+
+        let mut prev: Option<String> = None;
+        let mut current: Option<String> = None;
+        let reader = BufReader::new(file);
+        let mut current_ix = 0;
+        let mut line_max_len = 0;
+
+        let in_range = |x: usize, max: usize| (0..max).contains(&x);
+
+        for line_result in reader.lines() {
+            let next = match line_result.next() {
+                Some(Ok(line)) => Some(line),  // A real line
+                Some(Err(e)) => return Err(e), // Real IO error
+                None => None,                  // EOF
+            };
+
+            // Now you have: prev, current, next
+            println!("prev:    {:?}", prev);
+            println!("current: {:?}", current);
+            println!("next:    {:?}", next);
+            println!("----------------------------------");
+
+            if let Some(ref current) = current {
+                line_max_len = current.len();
+                let in_range = |x: usize| (0..line_max_len).contains(&x);
+                for c_ix in 0..current.len() {
+                    let chars: Vec<char> = current.chars().collect();
+                    if chars[c_ix] == '@' {
+                        if in_range(c_ix - 1) && chars[c_ix - 1] != '@' {
+                            result_a += 1;
+                        }
+                        if in_range(c_ix + 1) && chars[c_ix + 1] != '@' {
+                            result_a += 1;
+                        }
+                        if let Some(ref prev) = prev {
+                            if in_range(c_ix - 1) && chars[c_ix - 1] != '@' {
+                                result_a += 1;
+                            }
+                            if in_range(c_ix) && chars[c_ix] != '@' {
+                                result_a += 1;
+                            }
+                            if in_range(c_ix + 1) && chars[c_ix + 1] != '@' {
+                                result_a += 1;
+                            }
+                        }
+                        if let Some(ref next) = next {
+                            if in_range(c_ix - 1) && chars[c_ix - 1] != '@' {
+                                forkliftable += 1;
+                            }
+                            if in_range(c_ix) && chars[c_ix] != '@' {
+                                forkliftable += 1;
+                            }
+                            if in_range(c_ix + 1) && chars[c_ix + 1] != '@' {
+                                forkliftable += 1;
+                            }
+                        }
+                    }
+                    // we need to check
+                    // (x-1, y-1), (x, y-1),  (x+1, y-1)
+                    // (x-1, y), @,  (x+1, y)
+                    // (x-1, y+1), (x, y+1),  (x+1, y+1)
+                }
+            }
+            // Slide the window
+            prev = current;
+            current = Some(next);
+            current_ix += 1;
+        }
+
+        Ok((result_a, 0))
+    }
+
+    pub fn show_result_as() {
+        match ex4("./src/ex4_input.txt") {
+            Ok((a, b)) => println!("Ex2025_2 result a: {} and b: {}", a, b),
+            Err(e) => eprintln!("Ex2025_4 error: {e}"),
+        }
+    }
+}
 fn main() {
     //ex1::show_result_as();
     //ex2::show_result_as();
-    ex3::show_result_as();
+    //ex3::show_result_as();
+    ex4::show_result_as();
 }
 
 // min - max
