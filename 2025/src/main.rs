@@ -160,12 +160,6 @@ mod ex4 {
                 None => None,                  // EOF
             };
 
-            // Now you have: prev, current, next
-            println!("prev:    {:?}", prev);
-            println!("current: {:?}", current);
-            println!("next:    {:?}", next);
-            println!("----------------------------------");
-
             if let Some(ref current) = current {
                 line_max_len = current.len();
                 let in_range = |x: usize| (0..line_max_len).contains(&x);
