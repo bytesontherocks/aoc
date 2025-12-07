@@ -139,6 +139,59 @@ mod ex4 {
     use std::fs::File;
     use std::io::{BufRead, BufReader};
 
+    fn count_forkable_neighbors(grid: &Vec<Vec<char>>, y: usize, x: usize) -> u64 {
+        // 8-direction neighbors
+        const NEIGHBORS: [(isize, isize); 8] = [
+            (-1, -1),
+            (-1, 0),
+            (-1, 1), // above
+            (0, -1),
+            (0, 1), // left / right
+            (1, -1),
+            (1, 0),
+            (1, 1), // below
+        ];
+
+        let height = grid.len();
+        let width = grid[y].len();
+
+        let mut forkable = 0;
+
+        for (dy, dx) in NEIGHBORS {
+            let ny = y as isize + dy;
+            let nx = x as isize + dx;
+
+            if ny >= 0 && (ny as usize) < height && nx >= 0 && (nx as usize) < width {
+                let c = grid[ny as usize][nx as usize];
+                forkable += (c == '@') as u64;
+            }
+        }
+
+        forkable
+    }
+
+    fn ex4_<F>(grid: &mut Vec<Vec<char>>, mut action: F) -> u64
+    where
+        F: FnMut(u64, usize, usize, &mut Vec<Vec<char>>) -> u64,
+    {
+        let mut result = 0;
+
+        for y in 0..grid.len() {
+            for x in 0..grid[y].len() {
+                if grid[y][x] != '@' {
+                    continue;
+                }
+
+                let forkable = count_forkable_neighbors(grid, y, x);
+
+                // Execute the injection lambda
+                result += action(forkable, y, x, grid);
+            }
+        }
+
+        result
+    }
+
     fn ex4(filename: &str) -> Result<(u64, u64), Box<dyn Error>> {
         let file = File::open(filename)?;
         let reader = BufReader::new(file);
@@ -156,62 +209,31 @@ mod ex4 {
             return Ok((0, 0));
         }
 
-        let mut result_a: u64 = 0;
         let mut result_b: u64 = 0;
 
-        let rows = grid.len();
-        let cols = grid[0].len();
+        let result_a = ex4_(
+            &mut grid.clone(),
+            |forkable, _, _, _| {
+                if forkable < 4 { 1 } else { 0 }
+            },
+        );
 
-        let in_bounds = |y: isize, x: isize| -> bool {
-            y >= 0 && y < rows as isize && x >= 0 && x < cols as isize
-        };
-
-        // Directions for neighbors
-        let neighbors = [
-            (-1, -1),
-            (-1, 0),
-            (-1, 1), // above
-            (0, -1),
-            (0, 1), // left/right
-            (1, -1),
-            (1, 0),
-            (1, 1), // below
-        ];
-
-        let mut final_grid = false;
-
-        while !final_grid {
-            //exb
-            final_grid = true; //exb
-            for y in 0..height {
-                let width = grid[y].len();
-
-                for x in 0..width {
-                    if grid[y][x] != '@' {
-                        continue;
-                    }
-                    let mut forkable = 0;
-                    // Look at all 8 neighbors
-                    for (dy, dx) in neighbors {
-                        let ny = y as isize + dy;
-                        let nx = x as isize + dx;
-
-                        if in_bounds(ny, nx) {
-                            let c = grid[ny as usize][nx as usize];
-
-                            forkable += (c == '@') as u64;
-                        }
-                    }
-                    if forkable < 4 {
-                        result_a += 1;
-                        grid[y][x] = '.'; //exb
-                        final_grid = false; //exb
-                    }
+        //exb
+        let mut result_b = 0 as u64;
+        let mut result_b_prev = 1 as u64;
+        while result_b != result_b_prev {
+            result_b_prev = result_b;
+            result_b += ex4_(&mut grid, |forkable, y, x, grid| {
+                if forkable < 4 {
+                    grid[y][x] = '.'; // mutate
+                    1
+                } else {
+                    0
                 }
-            }
+            });
         }
 
-        Ok((result_a, result_a))
+        Ok((result_a, result_b))
     }
 
     pub fn show_result_as() {
