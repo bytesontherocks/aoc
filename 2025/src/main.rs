@@ -141,73 +141,77 @@ mod ex4 {
 
     fn ex4(filename: &str) -> Result<(u64, u64), Box<dyn Error>> {
         let file = File::open(filename)?;
+        let reader = BufReader::new(file);
+
+        // Load entire file into a 2D mutable char grid
+        let mut grid: Vec<Vec<char>> = reader
+            .lines()
+            .collect::<Result<Vec<_>, _>>()?
+            .into_iter()
+            .map(|line| line.chars().collect())
+            .collect();
+
+        let height = grid.len();
+        if height == 0 {
+            return Ok((0, 0));
+        }
 
         let mut result_a: u64 = 0;
         let mut result_b: u64 = 0;
 
-        let mut prev: Option<String> = None;
-        let mut current: Option<String> = None;
-        let reader = BufReader::new(file);
-        let mut current_ix = 0;
-        let mut line_max_len = 0;
+        let rows = grid.len();
+        let cols = grid[0].len();
 
-        let in_range = |x: usize, max: usize| (0..max).contains(&x);
+        let in_bounds = |y: isize, x: isize| -> bool {
+            y >= 0 && y < rows as isize && x >= 0 && x < cols as isize
+        };
 
-        for line_result in reader.lines() {
-            let next = match line_result.next() {
-                Some(Ok(line)) => Some(line),  // A real line
-                Some(Err(e)) => return Err(e), // Real IO error
-                None => None,                  // EOF
-            };
+        // Directions for neighbors
+        let neighbors = [
+            (-1, -1),
+            (-1, 0),
+            (-1, 1), // above
+            (0, -1),
+            (0, 1), // left/right
+            (1, -1),
+            (1, 0),
+            (1, 1), // below
+        ];
 
-            if let Some(ref current) = current {
-                line_max_len = current.len();
-                let in_range = |x: usize| (0..line_max_len).contains(&x);
-                for c_ix in 0..current.len() {
-                    let chars: Vec<char> = current.chars().collect();
-                    if chars[c_ix] == '@' {
-                        if in_range(c_ix - 1) && chars[c_ix - 1] != '@' {
-                            result_a += 1;
-                        }
-                        if in_range(c_ix + 1) && chars[c_ix + 1] != '@' {
-                            result_a += 1;
-                        }
-                        if let Some(ref prev) = prev {
-                            if in_range(c_ix - 1) && chars[c_ix - 1] != '@' {
-                                result_a += 1;
-                            }
-                            if in_range(c_ix) && chars[c_ix] != '@' {
-                                result_a += 1;
-                            }
-                            if in_range(c_ix + 1) && chars[c_ix + 1] != '@' {
-                                result_a += 1;
-                            }
-                        }
-                        if let Some(ref next) = next {
-                            if in_range(c_ix - 1) && chars[c_ix - 1] != '@' {
-                                forkliftable += 1;
-                            }
-                            if in_range(c_ix) && chars[c_ix] != '@' {
-                                forkliftable += 1;
-                            }
-                            if in_range(c_ix + 1) && chars[c_ix + 1] != '@' {
-                                forkliftable += 1;
-                            }
+        let mut final_grid = false;
+
+        while !final_grid {
+            //exb
+            final_grid = true; //exb
+            for y in 0..height {
+                let width = grid[y].len();
+
+                for x in 0..width {
+                    if grid[y][x] != '@' {
+                        continue;
+                    }
+                    let mut forkable = 0;
+                    // Look at all 8 neighbors
+                    for (dy, dx) in neighbors {
+                        let ny = y as isize + dy;
+                        let nx = x as isize + dx;
+
+                        if in_bounds(ny, nx) {
+                            let c = grid[ny as usize][nx as usize];
+
+                            forkable += (c == '@') as u64;
                         }
                     }
-                    // we need to check
-                    // (x-1, y-1), (x, y-1),  (x+1, y-1)
-                    // (x-1, y), @,  (x+1, y)
-                    // (x-1, y+1), (x, y+1),  (x+1, y+1)
+                    if forkable < 4 {
+                        result_a += 1;
+                        grid[y][x] = '.'; //exb
+                        final_grid = false; //exb
+                    }
                 }
             }
-            // Slide the window
-            prev = current;
-            current = Some(next);
-            current_ix += 1;
         }
 
-        Ok((result_a, 0))
+        Ok((result_a, result_a))
     }
 
     pub fn show_result_as() {
